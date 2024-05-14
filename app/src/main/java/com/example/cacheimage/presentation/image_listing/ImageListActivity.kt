@@ -17,6 +17,7 @@ import com.example.cacheimage.databinding.ActivityImageListBinding
 import com.example.cacheimage.domain.model.Image
 import com.example.cacheimage.domain.model.ImageLinks
 import com.example.cacheimage.presentation.image_listing.adapter.ImageListAdapter
+import com.example.cacheimage.util.CustomImageBuilder
 import com.example.cacheimage.util.ImageDownloader
 import com.example.cacheimage.util.makeUrl
 import com.example.movieslistapp.util.GridItemDecorator
@@ -32,11 +33,11 @@ class ImageListActivity : AppCompatActivity() {
     private var mImageListAdapter: ImageListAdapter? = null
     private var mImageList = arrayListOf<Image>()
     //private var mUriList = arrayListOf<Pair<String, String>>()
-    private var mImageLinkLists = arrayListOf<ImageLinks>()
+   // private var mImageLinkLists = arrayListOf<ImageLinks>()
     private val viewModel: ImageListViewModel by viewModels()
 
     @Inject
-    lateinit var imageDownloader: ImageDownloader
+    lateinit var customImageBuilder: CustomImageBuilder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,14 +45,14 @@ class ImageListActivity : AppCompatActivity() {
         binding = ActivityImageListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         observeImageList()
-        observeUriList()
+        //observeUriList()
 
 
         initializeImageListAdapter()
         viewModel.getImages()
-        viewModel.getUriLocally()
+       // viewModel.getUriLocally()
 
-        binding.rvImageList.addOnScrollListener(object: RecyclerView.OnScrollListener(){
+       /* binding.rvImageList.addOnScrollListener(object: RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 
@@ -78,7 +79,7 @@ class ImageListActivity : AppCompatActivity() {
                 }
             }
 
-        })
+        })*/
 
 
 
@@ -88,29 +89,25 @@ class ImageListActivity : AppCompatActivity() {
 
             lifecycleScope.launch {
                 viewModel.mImageListStateFlow.collect { imageList ->
-                    if (imageList != null) {
-                        showProgressBar(false)
-                        mImageList.clear()
-                        mImageList.addAll(imageList)
-                      /*  mUriList.addAll(
-                            imageList.map { Pair(it.makeUrl(), "") }
-                        )*/
+                    showProgressBar(false)
+                    mImageList.clear()
+                    mImageList.addAll(imageList)
+                    /*  mUriList.addAll(
+                        imageList.map { Pair(it.makeUrl(), "") }
+                    )*/
 
-                        mImageLinkLists.addAll(imageList.map { ImageLinks(url = it.url, uri = null)  } )
-                        mImageListAdapter?.notifyDataSetChanged()
+                    // mImageLinkLists.addAll(imageList.map { ImageLinks(url = it.url, uri = null)  } )
+                    mImageListAdapter?.notifyDataSetChanged()
 
-                      //  downloadImageUri(mImageList)
-                        println("--------->>>>>>>mImageList"+mImageList.size)
-                    } else {
-                         Toast.makeText(this@ImageListActivity, "data is null", Toast.LENGTH_SHORT).show()
-                    }
+                    //  downloadImageUri(mImageList)
+                    println("--------->>>>>>>mImageList"+mImageList.size)
                 }
             }
 
 
     }
 
-    private fun observeUriList() {
+   /* private fun observeUriList() {
 
         lifecycleScope.launch {
             viewModel.mImageUriListStateFlow.collect { imageList ->
@@ -127,7 +124,7 @@ class ImageListActivity : AppCompatActivity() {
         }
 
 
-    }
+    }*/
 
 /*    private fun downloadImageUri(imageList: List<Image>) {
         mImageList.forEach{
@@ -160,9 +157,8 @@ class ImageListActivity : AppCompatActivity() {
 
     private fun initializeImageListAdapter() {
         mImageListAdapter = ImageListAdapter(
-            mImageLinkLists,
-            imageDownloader = imageDownloader,
-            this
+            mImageList,
+            customImageBuilder
         )
         binding.rvImageList.apply {
             adapter = mImageListAdapter

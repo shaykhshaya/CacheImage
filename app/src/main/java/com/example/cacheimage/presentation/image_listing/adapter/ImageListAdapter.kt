@@ -2,36 +2,37 @@ package com.example.cacheimage.presentation.image_listing.adapter
 
 import android.net.Uri
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.net.toUri
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cacheimage.databinding.RowItemImageBinding
 import com.example.cacheimage.domain.model.Image
-import com.example.cacheimage.domain.model.ImageLinks
-import com.example.cacheimage.util.ImageDownloader
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.cacheimage.util.CustomImageBuilder
 
 class ImageListAdapter(
-    private var mList: ArrayList<ImageLinks>,
-    private val imageDownloader: ImageDownloader,
-    private val scope: LifecycleOwner
+    private var mList: ArrayList<Image>,
+    private val customImageBuilder: CustomImageBuilder,
 ) : RecyclerView.Adapter<ImageListAdapter.ViewHolder>() {
 
 
     inner class ViewHolder(val binding: RowItemImageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: ImageLinks) {
+        fun bind(item: Image) {
             binding.apply {
                 //val imageUrl = makeUrl(item)
 
-                //ivImage.loadImageByUrl(imageUrl)
+               // ivImage.loadImageByUrl(item.url)
+                binding.progressCircular.visibility = View.VISIBLE
+                customImageBuilder.with(ivImage.context)
+                    .url(item.url)
+                    .callback(object : CustomImageBuilder.Callback {
+                        override fun onLoaded() {
+                            binding.progressCircular.visibility = View.GONE
+                        }
+                    })
+                    .into(ivImage)
+                    .build()
               /*  if (item.uri == null) {
 
                     val itemScope = binding.ivImage.findViewTreeLifecycleOwner()?.lifecycle?.currentState
@@ -58,7 +59,7 @@ class ImageListAdapter(
 
 
         fun startImageDownload(url: String, onDownloaded: (Uri)-> Unit){
-            if(mList[adapterPosition].uri.isNullOrEmpty()){
+         /*   if(mList[adapterPosition].uri.isNullOrEmpty()){
                 imageDownloader.downloadImage(
                     url = url,
                     onDownloaded = {
@@ -72,7 +73,7 @@ class ImageListAdapter(
                 )
             }else{
                 binding.ivImage.setImageURI(mList[adapterPosition].uri?.toUri())
-            }
+            }*/
 
 
         }
@@ -87,7 +88,7 @@ class ImageListAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = RowItemImageBinding.inflate(
+        val binding : RowItemImageBinding = RowItemImageBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false

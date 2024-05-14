@@ -4,12 +4,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.LifecycleCoroutineScope
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
@@ -24,9 +24,9 @@ class ImageDownloader @Inject constructor(
 
     fun downloadImage(
         url: String?,
-        onDownloaded: (Uri) -> Unit,
-        scope: LifecycleOwner?
-    ) = scope?.lifecycleScope?.launch(Dispatchers.IO) {
+        scope: CoroutineScope,
+        onDownloaded: CoroutineScope.(Uri) -> Unit,
+    ) = scope?.launch(Dispatchers.IO) {
         var imageUri: Uri? = null
 
         try {
@@ -61,11 +61,12 @@ class ImageDownloader @Inject constructor(
 
             // Get the Uri for the temporary file
             imageUri = Uri.fromFile(file)
-            onDownloaded(imageUri)
+            onDownloaded(scope, imageUri)
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
+        scope.cancel()
     }
+
 
 }

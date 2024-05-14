@@ -41,6 +41,18 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:src="@drawable/iv_sample" />
 
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress_circular"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/black"
+                app:layout_constraintStart_toStartOf="@id/iv_image"
+                app:layout_constraintEnd_toEndOf="@id/iv_image"
+                app:layout_constraintTop_toTopOf="@id/iv_image"
+                app:layout_constraintBottom_toBottomOf="@id/iv_image"
+                />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
